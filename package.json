@@ -1,0 +1,56 @@
+{
+  "name": "casino-mock-service",
+  "version": "0.0.1",
+  "description": "casino-mock-service",
+  "author": {
+    "name": "DraftKings Casino Unit",
+    "email": "casinodevsent@draftkings.com"
+  },
+  "main": "build/main.js",
+  "engines": {
+    "node": ">=14.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://bitbucket.sbtech.com/scm/cas/casino-play-data-service.git"
+  },
+  "scripts": {
+    "clean": "rimraf ./build/**",
+    "start": "node build/main.js",
+    "prebuild": "rimraf build",
+    "build": "tsc -p tsconfig.json",
+    "postbuild": "tsc-alias",
+    "dev": "nodemon -r tsconfig-paths/register src/main.ts",
+    "lint": "tsc --noEmit && eslint -c .eslintrc.js --ext .ts,.tsx ./src --max-warnings 0",
+    "lint:fix": "npm run lint -- --fix"
+  },
+  "dependencies": {
+    "@fastify/cors": "8.2.0",
+    "ajv": "8.11.2",
+    "ajv-formats": "2.1.1",
+    "casino-contracts": "1.30.2187",
+    "casino-lib": "1.30.2187",
+    "casino-logger": "1.30.2187",
+    "config": "3.3.8",
+    "fastify": "4.10.2",
+    "fastify-plugin": "4.3.0",
+    "newrelic": "9.7.0",
+    "socket.io-client": "4.5.4",
+    "uuid": "9.0.0"
+  },
+  "devDependencies": {
+    "@draftkings/casino-lint-configs": "1.30.2177",
+    "@types/config": "3.3.0",
+    "@types/node": "18.11.9",
+    "@types/uuid": "8.3.4",
+    "@typescript-eslint/eslint-plugin": "5.44.0",
+    "@typescript-eslint/parser": "5.44.0",
+    "eslint": "8.28.0",
+    "nodemon": "2.0.20",
+    "rimraf": "3.0.2",
+    "ts-node": "10.9.1",
+    "tsconfig-paths": "4.1.0",
+    "tsc-alias": "1.7.1",
+    "typescript": "4.9.3"
+  }
+}
