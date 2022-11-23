@@ -4,6 +4,7 @@ import fp from "fastify-plugin";
 import { RouteGenericInterface } from "fastify/types/route";
 import { cleanUpNullables, IAppLogger } from "casino-logger";
 import { Server, IncomingMessage } from "http";
+import { constructLogId } from "@utils";
 
 // More info on fastify request lifecycle: https://www.fastify.io/docs/latest/Reference/Lifecycle/
 
@@ -43,10 +44,10 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
     fastify.decorate("logger", options.logger);
 
     // doing this in preValidation as the body is parsed here and not in onRequest hook
-    fastify.addHook("preValidation", (request, _reply, done) => {
-        const reqIdHeader = request.headers?.["x-request-id"];
-        if (reqIdHeader) {
-            request.id = reqIdHeader;
+    fastify.addHook("preValidation", (request: FastifyRequest<{ Body: { requestId?: string } }>, _reply, done) => {
+        const reqId = request.headers?.["x-request-id"] as string || request.body?.requestId;
+        if (reqId) {
+            request.id = reqId;
         }
 
         // Deep copy
@@ -59,8 +60,12 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
             request: parsedRequest
         });
 
-        if (request.stubs.has(event)) {
-            request.cache.set(parsedRequest.requestId as string, parsedRequest);
+        if (request.stubs.has(request.url)) {
+            const logId = constructLogId(request.id as string, request.url);
+            request.cache.set(logId, {
+                logId,
+                ...parsedRequest
+            });
         }
 
         done();
@@ -84,17 +89,16 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
     });
 
     fastify.addHook("onSend", (request, reply, payload, done) => {
-        const event = buildEvent(request);
-        if (request.stubs.has(event)) {
+        if (request.stubs.has(request.url)) {
             let parsedPayload = payload;
             try {
                 parsedPayload = JSON.parse(payload as string);
             } catch (error) {
                 // empty
             }
-
-            request.cache.set(request.id as string, {
-                ...request.cache.get(request.id as string),
+            const logId = constructLogId(request.id as string, request.url);
+            request.cache.set(logId, {
+                ...request.cache.get(logId),
                 response: parsedPayload,
                 responseTime: reply.getResponseTime(),
             });

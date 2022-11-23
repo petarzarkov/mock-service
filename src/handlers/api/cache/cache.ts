@@ -1,9 +1,9 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { withResult } from "@utils";
+import { constructLogId, withResult } from "@utils";
 
 export const cache = (action: "getAll" | "delete" | "getById" | "delById") => async (
-    req: FastifyRequest<{ Params: { id?: string } }, Server, IncomingMessage>,
+    req: FastifyRequest<{ Params: { id?: string }; Querystring: { searchPath?: string } }, Server, IncomingMessage>,
     _reply: FastifyReply<Server, IncomingMessage, ServerResponse>
 ) => {
 
@@ -17,8 +17,9 @@ export const cache = (action: "getAll" | "delete" | "getById" | "delById") => as
         return withResult(req, { deleted: originalSize });
     }
 
-    if (action === "getById" && req.params.id) {
-        return withResult(req, req.cache.get(req.params.id) || { message: "Nothing found" });
+    if (action === "getById" && req.params.id && req.query.searchPath) {
+        const logId = constructLogId(req.params.id, req.query.searchPath);
+        return withResult(req, req.cache.get(logId) || { message: "Nothing found" });
     }
 
     if (action === "delById" && req.params.id) {

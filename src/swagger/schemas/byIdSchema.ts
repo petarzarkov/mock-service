@@ -11,5 +11,12 @@ export const byIdSchema = (type: string, op: "Delete" | "Get"): FastifySchema & 
         properties: {
             id: { type: "string", format: "uuid" }
         }
+    },
+    querystring: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+            searchPath: { type: "string" }
+        }
     }
 });
