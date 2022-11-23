@@ -15,25 +15,24 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
             tags: ["stub"],
             summary: "Create stub/s",
             body: {
-                type: "object",
-                additionalProperties: false,
-                required: ["match"],
-                properties: {
-                    match: {
-                        oneOf: [{ type: "array", items: { type: "string" }, default: ["/multi", "/paths"] }, { type: "string", default: "/single/path" }]
-                    },
-                    httpStatus: { type: "number", minimum: 200, maximum: 599, default: 200 },
-                    httpHeaders: { type: "object" },
-                    httpBody: {
-                        oneOf: [{ type: "object" }, { type: "string" }]
-                    },
-                    delay: { type: "number", default: 0 },
-                },
-                examples: [{
-                    httpBody: {
-                        test: "test"
+                type: "array",
+                items: {
+                    type: "object",
+                    additionalProperties: false,
+                    required: ["match"],
+                    properties: {
+                        match: {
+                            oneOf: [{ type: "array", items: { type: "string" }, default: ["/multi", "/paths"] }, { type: "string", default: "/single/path" }]
+                        },
+                        httpStatus: { type: "number", minimum: 200, maximum: 599, default: 200 },
+                        httpHeaders: { type: "object" },
+                        httpBody: {
+                            oneOf: [{ type: "object" }, { type: "string" }]
+                        },
+                        delay: { type: "number", default: 0 },
                     }
-                }]
+
+                }
             }
         }
     }, stub("create"));

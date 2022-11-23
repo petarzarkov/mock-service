@@ -4,7 +4,6 @@ import fp from "fastify-plugin";
 import { RouteGenericInterface } from "fastify/types/route";
 import { cleanUpNullables, IAppLogger } from "casino-logger";
 import { Server, IncomingMessage } from "http";
-import { DOCS_PATH } from "@constants";
 
 // More info on fastify request lifecycle: https://www.fastify.io/docs/latest/Reference/Lifecycle/
 
@@ -60,7 +59,7 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
             request: parsedRequest
         });
 
-        if (!event.includes("/log") && !event.includes("/stub") && !event.includes(DOCS_PATH)) {
+        if (request.stubs.has(event)) {
             request.cache.set(parsedRequest.requestId as string, parsedRequest);
         }
 
@@ -86,7 +85,7 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
 
     fastify.addHook("onSend", (request, reply, payload, done) => {
         const event = buildEvent(request);
-        if (!event.includes("/log") && !event.includes("/stub") && !event.includes(DOCS_PATH) && request.cache.has(request.id as string)) {
+        if (request.stubs.has(event)) {
             let parsedPayload = payload;
             try {
                 parsedPayload = JSON.parse(payload as string);
