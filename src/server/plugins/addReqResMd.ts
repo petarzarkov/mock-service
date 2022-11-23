@@ -108,9 +108,8 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
                 eventName: buildEvent(req),
                 request: parseRequestLog(req)
             });
-            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-            const msg = error.validation.map(err => `${err.keyword} ${(err as unknown as { dataPath: string })?.dataPath} ${err.message}`).join(", ");
-            return reply.status(400).send(withError(req, msg));
+
+            return reply.status(400).send(withError(req, error.message));
         }
 
         return reply.send(withError(req, error));

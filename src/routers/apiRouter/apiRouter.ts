@@ -4,9 +4,9 @@ import { FastifyInstance, FastifyPluginOptions } from "fastify";
 
 export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, next: (err?: Error | undefined) => void) => {
 
-    app.get("/cache", cache("getAll"));
+    app.get("/cache", { schema: { tags: ["cache"] } }, cache("getAll"));
     app.get("/cache/:id", { schema: byIdSchema("cache", "Get") }, cache("getById"));
-    app.delete("/cache", cache("delete"));
+    app.delete("/cache", { schema: { tags: ["cache"] } }, cache("delete"));
     app.delete("/cache/:id", { schema: byIdSchema("cache", "Delete") }, cache("delById"));
 
     app.post("/stub", {
@@ -36,11 +36,31 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
             }
         }
     }, stub("create"));
-    app.get("/stub", stub("getAll"));
-    app.delete("/stub", stub("delete"));
+    app.get("/stub", { schema: { tags: ["stub"] } }, stub("getAll"));
+    app.delete("/stub", { schema: { tags: ["stub"] } }, stub("delete"));
 
-    app.get("/*", any);
-    app.post("/*", any);
+    app.get("/*", {
+        schema: {
+            params: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                    wildcard: { type: "string" }
+                }
+            }
+        }
+    }, any);
+    app.post("/*", {
+        schema: {
+            params: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                    wildcard: { type: "string" }
+                }
+            }
+        }
+    }, any);
 
     next();
 };
