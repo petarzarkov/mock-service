@@ -26,6 +26,8 @@
   },
   "dependencies": {
     "@fastify/cors": "8.2.0",
+    "@fastify/swagger": "8.1.0",
+    "@fastify/swagger-ui": "1.2.0",
     "ajv": "8.11.2",
     "ajv-formats": "2.1.1",
     "casino-contracts": "1.30.2187",

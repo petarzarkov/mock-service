@@ -2,8 +2,9 @@ import { withError } from "../../utils/results";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import { RouteGenericInterface } from "fastify/types/route";
-import { IAppLogger } from "casino-logger";
+import { cleanUpNullables, IAppLogger } from "casino-logger";
 import { Server, IncomingMessage } from "http";
+import { DOCS_PATH } from "@constants";
 
 // More info on fastify request lifecycle: https://www.fastify.io/docs/latest/Reference/Lifecycle/
 
@@ -17,7 +18,8 @@ declare module "fastify" {
     }
 }
 
-const parseRequestLog = (request: FastifyRequest) => ({
+const parseRequestLog = (request: FastifyRequest) => cleanUpNullables({
+    requestId: request.id as string,
     method: request.method,
     url: request.url,
     path: request.routerPath,
@@ -46,13 +48,18 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
         if (reqIdHeader) {
             request.id = reqIdHeader;
         }
-
+        const parsedRequest = parseRequestLog(request);
+        const event = buildEvent(request);
         request.logger = options.logger;
         fastify.logger.info(`Received ${request.method} request`, {
             requestId: request.id as string,
-            eventName: buildEvent(request),
+            eventName: event,
             request: parseRequestLog(request)
         });
+
+        if (!event.includes("/cache") && !event.includes("/stub") && !event.includes(DOCS_PATH)) {
+            request.cache.set(parsedRequest.requestId as string, parsedRequest);
+        }
 
         done();
     });
@@ -74,6 +81,25 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
         done();
     });
 
+    fastify.addHook("onSend", (request, reply, payload, done) => {
+        const event = buildEvent(request);
+        if (!event.includes("/cache") && !event.includes("/stub") && !event.includes(DOCS_PATH) && request.cache.has(request.id as string)) {
+            let parsedPayload = payload;
+            try {
+                parsedPayload = JSON.parse(payload as string);
+            } catch (error) {
+                // empty
+            }
+            request.cache.set(request.id as string, {
+                ...request.cache.get(request.id as string),
+                response: parsedPayload,
+                responseTime: reply.getResponseTime(),
+            });
+        }
+
+        done();
+    });
+
     fastify.setErrorHandler((error, req, reply) => {
         if (error.validation?.length) {
             fastify.logger.error(`Validation error on ${req.method} request`, {
@@ -84,10 +110,10 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
             });
             // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
             const msg = error.validation.map(err => `${err.keyword} ${(err as unknown as { dataPath: string })?.dataPath} ${err.message}`).join(", ");
-            return reply.status(400).send(withError(msg));
+            return reply.status(400).send(withError(req, msg));
         }
 
-        return reply.send(withError(error));
+        return reply.send(withError(req, error));
     });
 
     fastify.addHook("onError", (request, reply, error, done) => {

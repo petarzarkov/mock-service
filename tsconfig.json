@@ -28,6 +28,12 @@
       "@socket": [
         "./src/socket"
       ],
+      "@swagger": [
+        "./src/swagger"
+      ],
+      "@contracts": [
+        "./src/contracts"
+      ],
       "@routers": [
         "./src/routers"
       ],

@@ -7,8 +7,21 @@ export const any = async (
     reply: FastifyReply<Server, IncomingMessage, ServerResponse>
 ) => {
 
-    return withResult({
-        requestId: req.id as string,
+    if (req.stubs.has(req.url)) {
+        const stubResult = req.stubs.get(req.url);
+        const headers = {
+            ["x-request-id"]: req.id as string,
+            ...stubResult?.httpHeaders,
+        };
+
+        return reply
+            .status(stubResult?.httpStatus || 200)
+            .headers(headers)
+            .send(stubResult?.httpBody || {});
+    }
+
+    return withResult(req, {
+        message: `No stub handler found for ${req.url}`,
         elapsed: reply.getResponseTime()
     });
 };
