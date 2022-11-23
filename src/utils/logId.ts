@@ -1,0 +1,1 @@
+export const constructLogId = (id: string, searchPath: string) => `${id}_${searchPath}`;
