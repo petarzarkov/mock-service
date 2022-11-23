@@ -1,12 +1,14 @@
-/* eslint-disable @typescript-eslint/no-floating-promises */
 import { fastify } from "fastify";
 import fcors from "@fastify/cors";
+import { fastifySwagger } from "@fastify/swagger";
+import { fastifySwaggerUi } from "@fastify/swagger-ui";
+import { swagDocs, swagUi } from "@swagger";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
 import { IAppLogger } from "casino-logger";
 import { apiRouter } from "@routers";
-import { addReqResMd } from "./plugins";
-import { isProd, SERVICE_PORT } from "@constants";
+import { addCachePlugin, addReqResMd } from "./plugins";
+import { DOCS_PATH, isProd, SERVICE_PORT } from "@constants";
 import { v4 } from "uuid";
 
 export const startServer = async (logger: IAppLogger) => {
@@ -33,12 +35,19 @@ export const startServer = async (logger: IAppLogger) => {
         return httpPart === "querystring" ? querySchema.compile(schema) : defaultSchema.compile(schema);
     });
 
-    app.register(fcors);
-    app.register(addReqResMd, { logger });
+    await app.register(fcors);
+    await app.register(fastifySwagger, swagDocs);
+    await app.register(fastifySwaggerUi, swagUi);
+    await app.register(addCachePlugin, {
+        cache: new Map(),
+        stubs: new Map()
+    });
+    await app.register(addReqResMd, { logger });
+
     // if (!HTTP2_ENABLED) {
     //     app.register(addSocketClientPlugin, { socketClients: hubs.map(hub => new SocketClient(hub)) });
     // }
-    app.register(apiRouter);
+    await app.register(apiRouter);
 
     app.ready(err => {
         if (err) {
@@ -51,7 +60,7 @@ export const startServer = async (logger: IAppLogger) => {
             port: SERVICE_PORT,
             host: "0.0.0.0"
         }, (_, address) => {
-            app.logger.info(`Service started ${isProd ? address : `http://localhost:${SERVICE_PORT}`}`, { port: SERVICE_PORT });
+            app.logger.info(`Service started ${isProd ? address : `http://localhost:${SERVICE_PORT}/${DOCS_PATH}`}`, { port: SERVICE_PORT });
         });
     } catch (err) {
         app.logger.error("Error starting server", { err: <Error>err, port: SERVICE_PORT });

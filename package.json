@@ -22,10 +22,13 @@
     "postbuild": "tsc-alias",
     "dev": "nodemon -r tsconfig-paths/register src/main.ts",
     "lint": "tsc --noEmit && eslint -c .eslintrc.js --ext .ts,.tsx ./src --max-warnings 0",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "test:coverage": "echo NO TESTS"
   },
   "dependencies": {
     "@fastify/cors": "8.2.0",
+    "@fastify/swagger": "8.1.0",
+    "@fastify/swagger-ui": "1.2.0",
     "ajv": "8.11.2",
     "ajv-formats": "2.1.1",
     "casino-contracts": "1.30.2187",

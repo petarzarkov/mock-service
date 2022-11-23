@@ -17,4 +17,5 @@ export const SERVICE_PORT = Number(process.env.SERVICE_PORT) || (config.has("ser
 export const SOCKER_SERVER_URL: string = process.env.SOCKER_SERVER_URL || "http://localhost:3010";
 export const SOCKET_PATH: string = process.env.SOCKET_PATH || "";
 
+export const DOCS_PATH: string = process.env.DOCS_PATH || "docs";
 export const HTTP2_ENABLED: boolean = process.env.HTTP2_ENABLED === "true" || false;
