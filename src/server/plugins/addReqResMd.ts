@@ -43,21 +43,24 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
 ) => {
     fastify.decorate("logger", options.logger);
 
-    fastify.addHook("onRequest", (request, _reply, done) => {
+    // doing this in preValidation as the body is parsed here and not in onRequest hook
+    fastify.addHook("preValidation", (request, _reply, done) => {
         const reqIdHeader = request.headers?.["x-request-id"];
         if (reqIdHeader) {
             request.id = reqIdHeader;
         }
-        const parsedRequest = parseRequestLog(request);
+
+        // Deep copy
+        const parsedRequest = JSON.parse(JSON.stringify(parseRequestLog(request))) as ReturnType<typeof parseRequestLog>;
         const event = buildEvent(request);
         request.logger = options.logger;
         fastify.logger.info(`Received ${request.method} request`, {
             requestId: request.id as string,
             eventName: event,
-            request: parseRequestLog(request)
+            request: parsedRequest
         });
 
-        if (!event.includes("/cache") && !event.includes("/stub") && !event.includes(DOCS_PATH)) {
+        if (!event.includes("/log") && !event.includes("/stub") && !event.includes(DOCS_PATH)) {
             request.cache.set(parsedRequest.requestId as string, parsedRequest);
         }
 
@@ -83,13 +86,14 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
 
     fastify.addHook("onSend", (request, reply, payload, done) => {
         const event = buildEvent(request);
-        if (!event.includes("/cache") && !event.includes("/stub") && !event.includes(DOCS_PATH) && request.cache.has(request.id as string)) {
+        if (!event.includes("/log") && !event.includes("/stub") && !event.includes(DOCS_PATH) && request.cache.has(request.id as string)) {
             let parsedPayload = payload;
             try {
                 parsedPayload = JSON.parse(payload as string);
             } catch (error) {
                 // empty
             }
+
             request.cache.set(request.id as string, {
                 ...request.cache.get(request.id as string),
                 response: parsedPayload,
