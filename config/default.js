@@ -35,7 +35,7 @@ module.exports = {
                 "/fabio/health",
                 "/service/healthcheck",
                 "/service/upcheck",
-                "_healthcheck"
+                "/_healthcheck"
             ]
         }],
         sbtechLoggerConfig: {

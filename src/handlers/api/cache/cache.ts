@@ -8,7 +8,6 @@ export const cache = (action: "getAll" | "delete" | "getById" | "delById") => as
 ) => {
 
     if (action === "getAll") {
-        // const entries = [...req.cache.entries()];
         return withResult(req, [...req.cache.values()]);
     }
 

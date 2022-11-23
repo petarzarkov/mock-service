@@ -4,10 +4,10 @@ import { FastifyInstance, FastifyPluginOptions } from "fastify";
 
 export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, next: (err?: Error | undefined) => void) => {
 
-    app.get("/cache", { schema: { tags: ["cache"] } }, cache("getAll"));
-    app.get("/cache/:id", { schema: byIdSchema("cache", "Get") }, cache("getById"));
-    app.delete("/cache", { schema: { tags: ["cache"] } }, cache("delete"));
-    app.delete("/cache/:id", { schema: byIdSchema("cache", "Delete") }, cache("delById"));
+    app.get("/log", { schema: { tags: ["log"] } }, cache("getAll"));
+    app.get("/log/:id", { schema: byIdSchema("log", "Get") }, cache("getById"));
+    app.delete("/log", { schema: { tags: ["log"] } }, cache("delete"));
+    app.delete("/log/:id", { schema: byIdSchema("log", "Delete") }, cache("delById"));
 
     app.post("/stub", {
         schema: {
@@ -20,18 +20,19 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
                 required: ["match"],
                 properties: {
                     match: {
-                        oneOf: [{ type: "array", items: { type: "string" } }, { type: "string" }]
+                        oneOf: [{ type: "array", items: { type: "string" }, default: ["/multi", "/paths"] }, { type: "string", default: "/single/path" }]
                     },
-                    httpStatus: { type: "number" },
+                    httpStatus: { type: "number", minimum: 200, maximum: 599, default: 200 },
                     httpHeaders: { type: "object" },
                     httpBody: {
                         oneOf: [{ type: "object" }, { type: "string" }]
                     },
+                    delay: { type: "number", default: 0 },
                 },
                 examples: [{
-                    match: "/somePath"
-                }, {
-                    match: ["/multiple", "/paths"]
+                    httpBody: {
+                        test: "test"
+                    }
                 }]
             }
         }
@@ -58,6 +59,10 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
                 properties: {
                     wildcard: { type: "string" }
                 }
+            },
+            body: {
+                type: "object",
+                additionalProperties: false,
             }
         }
     }, any);

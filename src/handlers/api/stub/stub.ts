@@ -10,7 +10,7 @@ export const stub = (action: "create" | "getAll" | "delete") => async (
 
     if (action === "create") {
         const stub = req.body;
-        const matches = Array.isArray(stub.match) ? stub.match : [stub.match];
+        const matches = (Array.isArray(stub.match) ? stub.match : [stub.match]).map(item => item?.[0] !== "/" ? `/${item}` : item);
         for (const stubMatch of matches) {
             req.stubs.set(stubMatch, stub);
         }

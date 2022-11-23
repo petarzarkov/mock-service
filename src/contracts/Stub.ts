@@ -3,4 +3,5 @@ export type Stub = {
     httpStatus?: number;
     httpHeaders?: Record<string, string>;
     httpBody?: Record<string, unknown> | string;
+    delay?: number;
 };

@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { Server, IncomingMessage, ServerResponse } from "http";
-import { withResult } from "@utils";
+import { delay, withResult } from "@utils";
 
 export const any = async (
     req: FastifyRequest<{ Querystring: { ws?: boolean; delay?: number } }, Server, IncomingMessage>,
@@ -13,6 +13,10 @@ export const any = async (
             ["x-request-id"]: req.id as string,
             ...stubResult?.httpHeaders,
         };
+
+        if (stubResult?.delay) {
+            await delay(stubResult.delay);
+        }
 
         return reply
             .status(stubResult?.httpStatus || 200)
