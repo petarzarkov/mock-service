@@ -19,11 +19,12 @@ export const cache = (action: "getAll" | "delete" | "getById" | "delById") => as
 
     if (action === "getById" && req.params.id && req.query.searchPath) {
         const logId = constructLogId(req.params.id, req.query.searchPath);
-        return withResult(req, req.cache.get(logId) || { message: "Nothing found" });
+        return req.cache.get(logId) || { message: "Nothing found" };
     }
 
-    if (action === "delById" && req.params.id) {
-        return withResult(req, { deleted: req.cache.delete(req.params.id) });
+    if (action === "delById" && req.params.id && req.query.searchPath) {
+        const logId = constructLogId(req.params.id, req.query.searchPath);
+        return { deleted: req.cache.delete(logId) };
     }
 
     return withResult(req, { message: "No handlers for this action" });
