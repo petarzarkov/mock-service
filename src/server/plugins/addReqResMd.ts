@@ -64,7 +64,7 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
             const logId = constructLogId(request.id as string, request.url);
             request.cache.set(logId, {
                 logId,
-                ...parsedRequest
+                request: parsedRequest
             });
         }
 
@@ -99,8 +99,12 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
             const logId = constructLogId(request.id as string, request.url);
             request.cache.set(logId, {
                 ...request.cache.get(logId),
-                response: parsedPayload,
-                responseTime: reply.getResponseTime(),
+                response: {
+                    body: parsedPayload,
+                    headers: reply.getHeaders(),
+                    responseTime: reply.getResponseTime(),
+                    statusCode: reply.statusCode
+                },
             });
         }
 
