@@ -1,4 +1,4 @@
-import { APP_VERSION, DOCS_PATH, isProd } from "@constants";
+import { APP_VERSION, DOCS_PATH } from "@constants";
 import { SwaggerOptions } from "@fastify/swagger";
 import { FastifySwaggerUiOptions } from "@fastify/swagger-ui";
 import { generalError, generalResponse } from "./generalDefs";
@@ -32,7 +32,6 @@ export const swagDocs: SwaggerOptions = {
             url: "https://bitbucket.sbtech.com/projects/CAS/repos/casino-mock-service/browse",
             description: "Find more info here"
         },
-        schemes: [isProd ? "https" : "http"],
         consumes: ["application/json"],
         produces: ["application/json"],
         definitions: {
