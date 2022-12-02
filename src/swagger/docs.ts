@@ -23,6 +23,8 @@ export const swagUi: FastifySwaggerUiOptions = {
 
 export const swagDocs: SwaggerOptions = {
     swagger: {
+        host: process.env.HOST_IP || "localhost",
+        schemes: ["http"],
         info: {
             title: "Mock Service API",
             description: "Mock Service API swagger",
