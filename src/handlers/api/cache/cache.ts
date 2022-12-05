@@ -8,12 +8,13 @@ export const cache = (action: "getAll" | "delete" | "getById" | "delById") => as
 ) => {
 
     if (action === "getAll") {
-        return withResult(req, [...req.cache.values()]);
+        const all = req.cache.keys().map(key => req.cache.data[key].v as Record<string, unknown>);
+        return withResult(req, all);
     }
 
     if (action === "delete") {
-        const originalSize = req.cache.size;
-        req.cache.clear();
+        const originalSize = req.cache.stats.keys;
+        req.cache.flushAll();
         return withResult(req, { deleted: originalSize });
     }
 
@@ -24,7 +25,7 @@ export const cache = (action: "getAll" | "delete" | "getById" | "delById") => as
 
     if (action === "delById" && req.params.id && req.query.searchPath) {
         const logId = constructLogId(req.params.id, req.query.searchPath);
-        return { deleted: req.cache.delete(logId) };
+        return { deleted: req.cache.del(logId) };
     }
 
     return withResult(req, { message: "No handlers for this action" });

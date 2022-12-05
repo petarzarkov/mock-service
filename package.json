@@ -37,8 +37,8 @@
     "config": "3.3.8",
     "fastify": "4.10.2",
     "fastify-plugin": "4.3.0",
+    "node-cache": "5.1.2",
     "newrelic": "9.7.0",
-    "socket.io-client": "4.5.4",
     "uuid": "9.0.0"
   },
   "devDependencies": {

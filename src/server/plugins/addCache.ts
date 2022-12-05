@@ -1,20 +1,22 @@
+import { Stub } from "@contracts";
 import { FastifyPluginAsync } from "fastify";
 import fp from "fastify-plugin";
-import { Stub, LogId } from "@contracts";
+import NodeCache from "node-cache";
 
 // Declaration merging
 declare module "fastify" {
     export interface FastifyInstance {
-        cache: Map<LogId, Record<string, unknown>>;
+        cache: NodeCache;
         stubs: Map<string, Stub>;
     }
     export interface FastifyRequest {
-        cache: Map<LogId, Record<string, unknown>>;
+        cache: NodeCache;
         stubs: Map<string, Stub>;
+        // cache: Map<LogId, Record<string, unknown>>;
     }
 }
 
-const addCache: FastifyPluginAsync<{ cache: Map<LogId, Record<string, unknown>>; stubs: Map<string, Stub> }> = async (
+const addCache: FastifyPluginAsync<{ cache: NodeCache; stubs: Map<string, Stub> }> = async (
     fastify,
     options
 // eslint-disable-next-line @typescript-eslint/require-await

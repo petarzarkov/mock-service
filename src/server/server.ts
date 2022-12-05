@@ -8,8 +8,9 @@ import addFormats from "ajv-formats";
 import { IAppLogger } from "casino-logger";
 import { apiRouter } from "@routers";
 import { addCachePlugin, addReqResMd } from "./plugins";
-import { DOCS_PATH, isProd, SERVICE_PORT } from "@constants";
+import { CACHE_ITEM_ALIVE_CHECK_PERIOD, CACHE_ITEM_ALIVE_TIME, DOCS_PATH, isProd, SERVICE_PORT } from "@constants";
 import { v4 } from "uuid";
+import NodeCache from "node-cache";
 
 export const startServer = async (logger: IAppLogger) => {
     const app = fastify({
@@ -39,14 +40,13 @@ export const startServer = async (logger: IAppLogger) => {
     await app.register(fastifySwagger, swagDocs);
     await app.register(fastifySwaggerUi, swagUi);
     await app.register(addCachePlugin, {
-        cache: new Map(),
+        cache: new NodeCache({
+            stdTTL: CACHE_ITEM_ALIVE_TIME,
+            checkperiod: CACHE_ITEM_ALIVE_CHECK_PERIOD,
+        }),
         stubs: new Map()
     });
     await app.register(addReqResMd, { logger });
-
-    // if (!HTTP2_ENABLED) {
-    //     app.register(addSocketClientPlugin, { socketClients: hubs.map(hub => new SocketClient(hub)) });
-    // }
     await app.register(apiRouter);
 
     app.ready(err => {

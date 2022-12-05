@@ -5,6 +5,7 @@ import { RouteGenericInterface } from "fastify/types/route";
 import { cleanUpNullables, IAppLogger } from "casino-logger";
 import { Server, IncomingMessage } from "http";
 import { constructLogId } from "@utils";
+import { USE_CACHE } from "@constants";
 
 // More info on fastify request lifecycle: https://www.fastify.io/docs/latest/Reference/Lifecycle/
 
@@ -60,7 +61,7 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
             request: parsedRequest
         });
 
-        if (request.stubs.has(request.url)) {
+        if (request.stubs.has(request.url) && USE_CACHE) {
             const logId = constructLogId(request.id as string, request.url);
             request.cache.set(logId, {
                 logId,
@@ -89,6 +90,10 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
     });
 
     fastify.addHook("onSend", (request, reply, payload, done) => {
+        if (!USE_CACHE) {
+            return done();
+        }
+
         if (request.stubs.has(request.url)) {
             let parsedPayload = payload;
             try {
@@ -97,8 +102,9 @@ const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
                 // empty
             }
             const logId = constructLogId(request.id as string, request.url);
+
             request.cache.set(logId, {
-                ...request.cache.get(logId),
+                ...request.cache.get<Record<string, unknown>>(logId),
                 response: {
                     body: parsedPayload,
                     headers: reply.getHeaders(),
