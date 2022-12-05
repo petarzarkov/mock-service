@@ -14,8 +14,22 @@ export const COMMIT: string | undefined = process.env.GIT_COMMIT || undefined;
  */
 export const SERVICE_PORT = Number(process.env.SERVICE_PORT) || (config.has("servicePort") ? config.get<number>("servicePort") : 5055);
 
-export const SOCKER_SERVER_URL: string = process.env.SOCKER_SERVER_URL || "http://localhost:3010";
-export const SOCKET_PATH: string = process.env.SOCKET_PATH || "";
-
 export const DOCS_PATH: string = process.env.DOCS_PATH || "docs";
 export const HTTP2_ENABLED: boolean = process.env.HTTP2_ENABLED === "true" || false;
+
+/**
+ * how long to keep each request log (in seconds)
+ * @default 60
+ */
+export const CACHE_ITEM_ALIVE_TIME = Number(process.env.CACHE_ITEM_ALIVE_TIME) || 60;
+/**
+ * in what period to check if an item has expired (in seconds)
+ * @default 15
+ */
+export const CACHE_ITEM_ALIVE_CHECK_PERIOD = Number(process.env.CACHE_ITEM_ALIVE_CHECK_PERIOD) || 15;
+
+/**
+ * should this service cache the request logs
+ * @default true
+ */
+export const USE_CACHE = process.env.USE_CACHE === "true" || true;
