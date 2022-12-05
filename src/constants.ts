@@ -15,7 +15,6 @@ export const COMMIT: string | undefined = process.env.GIT_COMMIT || undefined;
 export const SERVICE_PORT = Number(process.env.SERVICE_PORT) || (config.has("servicePort") ? config.get<number>("servicePort") : 5055);
 
 export const DOCS_PATH: string = process.env.DOCS_PATH || "docs";
-export const HTTP2_ENABLED: boolean = process.env.HTTP2_ENABLED === "true" || false;
 
 /**
  * how long to keep each request log (in seconds)
