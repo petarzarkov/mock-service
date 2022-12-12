@@ -27,7 +27,7 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
                         httpStatus: { type: "number", minimum: 200, maximum: 599, default: 200 },
                         httpHeaders: { type: "object" },
                         httpBody: {
-                            oneOf: [{ type: "object" }, { type: "string" }]
+                            oneOf: [{ type: "object" }, { type: "string" }, { type: "array" }]
                         },
                         delay: { type: "number", default: 0 },
                     }
