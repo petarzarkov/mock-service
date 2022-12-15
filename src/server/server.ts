@@ -11,12 +11,85 @@ import { addCachePlugin, addReqResMd } from "./plugins";
 import { CACHE_ITEM_ALIVE_CHECK_PERIOD, CACHE_ITEM_ALIVE_TIME, DOCS_PATH, isProd, SERVICE_PORT } from "@constants";
 import { v4 } from "uuid";
 import NodeCache from "node-cache";
+import xml2js from "xml2js";
+
+function tryParseBoolean (val: string) {
+    if (/^(?:true|false)$/i.test(val)) {
+        return val.toLowerCase() === "true";
+    }
+
+    return val;
+}
+
+function tryParseDatetime (val: string) {
+    const res = new Date(Date.parse(val));
+    if (!isNaN(res.getTime())) {
+        return res;
+    }
+
+    return val;
+}
+
+function tryParseNumber (val: string) {
+    const res = +val;
+    if (!isNaN(res)) {
+        return res;
+    }
+
+    return val;
+}
 
 export const startServer = async (logger: IAppLogger) => {
     const app = fastify({
         logger: false,
         requestIdLogLabel: "requestId",
         genReqId: () => v4()
+    });
+
+    const xmlParser = new xml2js.Parser({
+        mergeAttrs: true,
+        explicitArray: false,
+        emptyTag: undefined,
+        attrValueProcessors: [
+            (value: string, name: string) => {
+                switch (name) {
+                    case "clienttypeid":
+                    case "amount":
+                    case "freegameoffercostperbet":
+                        return tryParseNumber(value);
+                    case "timestamp":
+                        return tryParseDatetime(value);
+                    case "start":
+                    case "finish":
+                    case "offline":
+                        return tryParseBoolean(value);
+                    default:
+                        return value;
+                }
+            }
+        ]
+    });
+    // Handle XML
+    app.addContentTypeParser(["text/xml", "application/xml", "application/rss+xml"], function (_request, payload, done) {
+        let body = "";
+
+        payload.on("error", (err) => {
+            done(err);
+        });
+
+        payload.on("data", (chunk: string) => {
+            body += chunk;
+        });
+
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises
+        payload.on("end", async () => {
+            try {
+                const request = await xmlParser.parseStringPromise(body) as Record<string, unknown>;
+                done(null, request);
+            } catch (err) {
+                done(err as Error);
+            }
+        });
     });
 
     app.setValidatorCompiler(({ schema, httpPart }) => {
