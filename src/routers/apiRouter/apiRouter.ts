@@ -50,7 +50,8 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
             }
         }
     }, any);
-    app.post("/*", {
+
+    const defaultRouteOptions  = {
         schema: {
             params: {
                 type: "object",
@@ -64,7 +65,13 @@ export const apiRouter = (app: FastifyInstance, _options: FastifyPluginOptions, 
                 additionalProperties: false,
             }
         }
-    }, any);
+    };
+
+    app.post("/*", defaultRouteOptions, any);
+
+    app.patch("/*", defaultRouteOptions, any);
+
+    app.delete("/*", defaultRouteOptions, any);
 
     next();
 };
