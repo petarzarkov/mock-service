@@ -1,4 +1,4 @@
-FROM node:16.15.1-alpine AS base
+FROM node:18.13.0-alpine AS base
 RUN apk update && apk add bash && apk add python3 && apk add make && apk add build-base && apk add curl
 RUN npm i -g npm@7.24.2
 RUN npm i -g pnpm@7.13.4

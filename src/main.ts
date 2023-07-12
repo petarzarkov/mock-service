@@ -1,17 +1,9 @@
-if (process.env.NEW_RELIC_APP_NAME && process.env.NEW_RELIC_LICENSE_KEY) {
-    require("newrelic");
-}
-import { logging } from "casino-logger";
-import { registerTerminateProcessListener, registerUnhandledErrorsListener, Consul } from "casino-lib";
 import { startServer } from "@server";
+import { HotLogger } from "@toplo/api";
 
-const log = logging.createLogger("endpoint");
+const log = HotLogger.createLogger("endpoint");
 
 const main = async () => {
-    void registerTerminateProcessListener();
-    void registerUnhandledErrorsListener({});
-
-    await Consul.register();
     await startServer(log);
 };
 

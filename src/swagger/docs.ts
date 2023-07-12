@@ -30,7 +30,7 @@ export const swagDocs: SwaggerOptions = {
             version: APP_VERSION,
         },
         externalDocs: {
-            url: "https://bitbucket.sbtech.com/projects/CAS/repos/casino-mock-service/browse",
+            url: "https://github.com/petarzarkov/mock-services",
             description: "Find more info here"
         },
         consumes: ["application/json"],

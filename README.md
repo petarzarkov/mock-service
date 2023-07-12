@@ -2,7 +2,7 @@
 - [API docs](https://localhost:5053/docs)
 
 <div align="center" style="background-color: rgb(149 150 150 / 35%); border-radius: 10px;">
-  <h1>Casino Mock Service</h1>
+  <h1>Mock Service</h1>
   <p>API</p>
   <p style="color: gray;">Stack</p>
   <a href="https://pnpm.io/" target="blank"><img title="pnpm" alt="pnpm" width="26" src="https://pnpm.io/img/favicon.png" /></a>

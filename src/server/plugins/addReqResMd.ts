@@ -2,24 +2,24 @@ import { withError } from "../../utils/results";
 import { FastifyPluginAsync, FastifyRequest } from "fastify";
 import fp from "fastify-plugin";
 import { RouteGenericInterface } from "fastify/types/route";
-import { cleanUpNullables, IAppLogger } from "casino-logger";
 import { Server, IncomingMessage } from "http";
 import { constructLogId } from "@utils";
 import { USE_CACHE } from "@constants";
+import { HotLogger, HotObj } from "@toplo/api";
 
 // More info on fastify request lifecycle: https://www.fastify.io/docs/latest/Reference/Lifecycle/
 
 // Declaration merging
 declare module "fastify" {
     export interface FastifyInstance {
-        logger: IAppLogger;
+        logger: HotLogger;
     }
     export interface FastifyRequest {
-        logger: IAppLogger;
+        logger: HotLogger;
     }
 }
 
-const parseRequestLog = (request: FastifyRequest) => cleanUpNullables({
+const parseRequestLog = (request: FastifyRequest) => HotObj.cleanUpNullables({
     requestId: request.id as string,
     method: request.method,
     url: request.url,
@@ -37,7 +37,7 @@ const buildEvent = (
     return url;
 };
 
-const ReqResMd: FastifyPluginAsync<{ logger: IAppLogger }> = async (
+const ReqResMd: FastifyPluginAsync<{ logger: HotLogger }> = async (
     fastify,
     options
 // eslint-disable-next-line @typescript-eslint/require-await

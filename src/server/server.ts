@@ -5,13 +5,13 @@ import { fastifySwaggerUi } from "@fastify/swagger-ui";
 import { swagDocs, swagUi } from "@swagger";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { IAppLogger } from "casino-logger";
 import { apiRouter } from "@routers";
 import { addCachePlugin, addReqResMd } from "./plugins";
 import { CACHE_ITEM_ALIVE_CHECK_PERIOD, CACHE_ITEM_ALIVE_TIME, DOCS_PATH, isProd, SERVICE_PORT } from "@constants";
 import { v4 } from "uuid";
 import NodeCache from "node-cache";
 import xml2js from "xml2js";
+import { HotLogger } from "@toplo/api";
 
 function tryParseBoolean (val: string) {
     if (/^(?:true|false)$/i.test(val)) {
@@ -39,7 +39,7 @@ function tryParseNumber (val: string) {
     return val;
 }
 
-export const startServer = async (logger: IAppLogger) => {
+export const startServer = async (logger: HotLogger) => {
     const app = fastify({
         logger: false,
         requestIdLogLabel: "requestId",
